@@ -35,7 +35,7 @@ interface DragToScrollConfig {
 /**
  * Represents a draggable element with scroll functionality.
  */
-export class DragToScroll extends DragToBlank {
+class DragToScroll extends DragToBlank {
 	direction: Direction;
 	slide: boolean;
 	animationOptions: AnimationOptions;
@@ -45,7 +45,8 @@ export class DragToScroll extends DragToBlank {
 	slideAnimation?: SlideAnimation;
 	preventDefault: boolean;
 	stopPropagation: boolean;
-	protected override defaultClassName = 'drag-to-scroll';
+	protected static override defaultClassName =
+		'drag-to-scroll';
 
 	private boundStopSlideAnimation: (event: Event) => void;
 
@@ -279,3 +280,5 @@ export class DragToScroll extends DragToBlank {
 		};
 	}
 }
+
+(window as any).DragToBlank = DragToBlank;
