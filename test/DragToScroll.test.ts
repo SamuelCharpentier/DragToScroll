@@ -665,4 +665,114 @@ describe('DragToScroll', () => {
 			);
 		});
 	});
+	describe('instances', () => {
+		it('is defined as a static property array', () => {
+			expect(DragToScroll.instances).toBeInstanceOf(
+				Array,
+			);
+		});
+		it('contains all instances of DragToScroll', () => {
+			DragToScroll.instances = [];
+			let instance = new DragToScroll(element);
+			expect(DragToScroll.instances).toContain(
+				instance,
+			);
+
+			const defaultClassElement =
+				createScrollableElement();
+			defaultClassElement.classList.add(
+				'drag-to-scroll',
+			);
+			document.body.appendChild(defaultClassElement);
+
+			DragToScroll.apply();
+
+			expect(DragToScroll.instances).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						DOMelement: defaultClassElement,
+					}),
+				]),
+			);
+
+			const customClassName = 'custom-drag-to-scroll';
+			const customClassElement =
+				createScrollableElement();
+			customClassElement.classList.add(
+				customClassName,
+			);
+			document.body.appendChild(customClassElement);
+
+			const controlElement =
+				createScrollableElement();
+			document.body.appendChild(controlElement);
+
+			DragToScroll.apply(customClassName);
+
+			expect(DragToScroll.instances).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						DOMelement: customClassElement,
+					}),
+				]),
+			);
+		});
+	});
+	describe('apply', () => {
+		it('should apply the DragToScroll class to all elements with the class name', () => {
+			const defaultClassElement =
+				createScrollableElement();
+			defaultClassElement.classList.add(
+				'drag-to-scroll',
+			);
+			document.body.appendChild(defaultClassElement);
+
+			const customClassElement =
+				createScrollableElement();
+			customClassElement.classList.add(
+				'custom-drag-to-scroll',
+			);
+			document.body.appendChild(customClassElement);
+
+			const controlElement =
+				createScrollableElement();
+			document.body.appendChild(controlElement);
+
+			DragToScroll.apply();
+		});
+	});
+	describe('destroy', () => {
+		it('should remove the instance from the instances array', () => {
+			DragToScroll.instances = [];
+
+			expect(DragToScroll.instances).toStrictEqual(
+				[],
+			);
+
+			const windowRemoveEventListenerSpy = jest.spyOn(
+				window,
+				'removeEventListener',
+			);
+			const elementRemoveEventListenerSpy =
+				jest.spyOn(element, 'removeEventListener');
+
+			const instance = new DragToScroll(element);
+
+			expect(DragToScroll.instances).toContain(
+				instance,
+			);
+
+			instance.destroy();
+
+			expect(
+				windowRemoveEventListenerSpy,
+			).toHaveBeenCalled();
+			expect(
+				elementRemoveEventListenerSpy,
+			).toHaveBeenCalled();
+			expect(DragToScroll.instances).not.toContain(
+				instance,
+			);
+		});
+	});
 });

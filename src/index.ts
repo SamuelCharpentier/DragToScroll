@@ -57,6 +57,7 @@ export class DragToScroll extends DragToBlank {
 	private slideAnimationData?: SlideAnimationData;
 	protected static override defaultClassName =
 		'drag-to-scroll';
+	static override instances: DragToScroll[] = [];
 
 	private boundStopSlideAnimation: (event: Event) => void;
 
@@ -133,6 +134,8 @@ export class DragToScroll extends DragToBlank {
 
 		this.boundStopSlideAnimation = () =>
 			this.stopSlideAnimation();
+
+		DragToScroll.instances.push(this);
 	}
 
 	private handleEventChecks(event: MouseEvent): void {
@@ -351,6 +354,39 @@ export class DragToScroll extends DragToBlank {
 				this.DOMelement.scrollHeight -
 				this.DOMelement.clientHeight,
 		};
+	}
+	override destroy(): void {
+		// Remove event listeners
+		this.DOMelement.removeEventListener(
+			'mousedown',
+			this.boundMouseDownHandler,
+		);
+		window.removeEventListener(
+			'mouseup',
+			this.boundMouseUpHandler,
+		);
+		window.removeEventListener(
+			'mousemove',
+			this.boundDragMoveHandler,
+		);
+
+		// Remove this instance from the static instances array
+		const index = DragToScroll.instances.indexOf(this);
+		if (index > -1) {
+			DragToScroll.instances.splice(index, 1);
+		}
+	}
+	static override destroy(element: HTMLElement): void {
+		const instance = DragToScroll.instances.find(
+			(instance) => instance.DOMelement === element,
+		);
+		if (instance) {
+			instance.destroy();
+		}
+	}
+	static override destroyAll(): void {
+		const instances = [...DragToScroll.instances];
+		instances.forEach((instance) => instance.destroy());
 	}
 }
 
