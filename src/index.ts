@@ -1,14 +1,28 @@
 import { DragToBlank } from 'drag-to-blank';
 
+type DeepPartial<T> = {
+	[P in keyof T]?: T[P] extends (infer U)[]
+		? DeepPartial<U>[]
+		: T[P] extends readonly (infer U)[]
+		? readonly DeepPartial<U>[]
+		: DeepPartial<T[P]>;
+};
 interface Direction {
 	x: boolean;
 	y: boolean;
 }
 
-interface AnimationOptions {
+interface AnimationTiming {
 	duration: number;
 	easingFactor: number;
 	maxSpeed: number;
+}
+
+interface AnimationParameters {
+	timing: AnimationTiming;
+	slide: boolean;
+	// bounce: boolean; ///TODO implement bounce
+	// overscroll: boolean; ///TODO implement overscroll
 }
 
 interface Velocity {
@@ -16,18 +30,15 @@ interface Velocity {
 	angle: number;
 }
 
-interface SlideAnimation {
+interface SlideAnimationData {
 	startTimestamp: number;
 	timestamp: number;
 	rafID: number;
 }
 
-interface DragToScrollConfig {
+export interface DragToScrollConfigurations {
 	direction?: Partial<Direction>;
-	slide?: boolean;
-	animationOptions?: Partial<AnimationOptions>;
-	//bounce?: boolean; ///TODO implement bounce
-	//overscroll?: boolean; ///TODO implement overscroll
+	animation?: DeepPartial<AnimationParameters>;
 	preventDefault?: boolean;
 	stopPropagation?: boolean;
 }
@@ -35,16 +46,15 @@ interface DragToScrollConfig {
 /**
  * Represents a draggable element with scroll functionality.
  */
-class DragToScroll extends DragToBlank {
-	direction: Direction;
-	slide: boolean;
-	animationOptions: AnimationOptions;
-	// bounce: boolean; ///TODO implement bounce
-	// overscroll: boolean; ///TODO implement overscroll
-	velocity?: Velocity;
-	slideAnimation?: SlideAnimation;
-	preventDefault: boolean;
-	stopPropagation: boolean;
+export class DragToScroll extends DragToBlank {
+	parameters: {
+		direction: Direction;
+		animation: AnimationParameters;
+		preventDefault: boolean;
+		stopPropagation: boolean;
+	};
+	private releaseVelocity?: Velocity;
+	private slideAnimationData?: SlideAnimationData;
 	protected static override defaultClassName =
 		'drag-to-scroll';
 
@@ -52,35 +62,84 @@ class DragToScroll extends DragToBlank {
 
 	constructor(
 		DOMelement: HTMLElement,
-		config: DragToScrollConfig = {},
+		configurations: DragToScrollConfigurations = {},
 	) {
 		super(DOMelement);
 
-		this.direction = {
-			x: true,
-			y: true,
-			...config.direction,
+		const defaultParameters = {
+			direction: { x: true, y: true },
+			animation: {
+				timing: {
+					duration: 1500,
+					easingFactor: 4,
+					maxSpeed: 10,
+				},
+				slide: true,
+				//bounce: true, ///TODO implement bounce
+				//overscroll: true, ///TODO implement overscroll
+			},
+			preventDefault: true,
+			stopPropagation: true,
 		};
-		this.slide = config.slide ?? true;
-		this.animationOptions = {
-			duration: 1500,
-			easingFactor: 4,
-			maxSpeed: 10,
-			...config.animationOptions,
+
+		const defaultTiming =
+			defaultParameters.animation.timing;
+
+		const timingConfigurations =
+			configurations.animation?.timing;
+
+		this.parameters = {
+			direction: {
+				x:
+					configurations.direction?.x !==
+					undefined
+						? configurations.direction.x
+						: configurations.direction?.y ===
+						  true
+						? false
+						: defaultParameters.direction.x,
+				y:
+					configurations.direction?.y !==
+					undefined
+						? configurations.direction.y
+						: configurations.direction?.x ===
+						  true
+						? false
+						: defaultParameters.direction.y,
+			},
+			animation: {
+				timing: {
+					duration:
+						timingConfigurations?.duration ??
+						defaultTiming.duration,
+					easingFactor:
+						timingConfigurations?.easingFactor ??
+						defaultTiming.easingFactor,
+					maxSpeed:
+						timingConfigurations?.maxSpeed ??
+						defaultTiming.maxSpeed,
+				},
+				slide:
+					configurations.animation?.slide ??
+					defaultParameters.animation.slide,
+				//bounce: config.animationOptions?.bounce ?? defaultParameters.animationOptions.bounce, ///TODO implement bounce
+				//overscroll: config.animationOptions?.overscroll ?? defaultParameters.animationOptions.overscroll, ///TODO implement overscroll
+			},
+			preventDefault:
+				configurations.preventDefault ?? true,
+			stopPropagation:
+				configurations.stopPropagation ?? true,
 		};
-		//this.bounce = config.bounce ?? true; ///TODO implement bounce
-		//this.overscroll = config.overscroll ?? true; ///TODO implement overscroll
-		this.preventDefault = config.preventDefault ?? true;
-		this.stopPropagation =
-			config.stopPropagation ?? true;
 
 		this.boundStopSlideAnimation = () =>
-			this.stopSlideAnimation;
+			this.stopSlideAnimation();
 	}
 
 	private handleEventChecks(event: MouseEvent): void {
-		if (this.stopPropagation) event.stopPropagation();
-		if (this.preventDefault) event.preventDefault();
+		if (this.parameters.stopPropagation)
+			event.stopPropagation();
+		if (this.parameters.preventDefault)
+			event.preventDefault();
 	}
 
 	protected override mouseDown(event: MouseEvent): void {
@@ -109,7 +168,10 @@ class DragToScroll extends DragToBlank {
 
 	protected override dragEnd(event: MouseEvent): void {
 		this.handleEventChecks(event);
-		if (this.slide && this.setReleaseVelocity())
+		if (
+			this.parameters.animation.slide &&
+			this.setReleaseVelocity()
+		)
 			this.startAnimateSlide();
 	}
 
@@ -139,11 +201,11 @@ class DragToScroll extends DragToBlank {
 
 		let speed = Math.min(
 			distance / timeDif,
-			this.animationOptions.maxSpeed,
+			this.parameters.animation.timing.maxSpeed,
 		);
 		if (speed <= 0.2) return false;
 
-		this.velocity = {
+		this.releaseVelocity = {
 			speed,
 			angle: Math.atan2(deltaY, deltaX),
 		};
@@ -155,7 +217,7 @@ class DragToScroll extends DragToBlank {
 			'wheel',
 			this.boundStopSlideAnimation,
 		);
-		this.slideAnimation = {
+		this.slideAnimationData = {
 			rafID: requestAnimationFrame(
 				this.animateSlide.bind(this),
 			),
@@ -166,27 +228,32 @@ class DragToScroll extends DragToBlank {
 
 	private animateSlide(): void {
 		if (
-			this.velocity === undefined ||
-			this.slideAnimation === undefined
+			this.releaseVelocity === undefined ||
+			this.slideAnimationData === undefined
 		)
 			return;
 
 		const timestamp = Date.now();
 
 		const timeDifStart =
-			timestamp - this.slideAnimation.startTimestamp;
+			timestamp -
+			this.slideAnimationData.startTimestamp;
 
-		if (timeDifStart < this.animationOptions.duration) {
+		if (
+			timeDifStart <
+			this.parameters.animation.timing.duration
+		) {
 			const timeDifLastFrame =
-				timestamp - this.slideAnimation.timestamp;
+				timestamp -
+				this.slideAnimationData.timestamp;
 
 			const progress =
 				(timeDifStart - timeDifLastFrame / 2) /
-				this.animationOptions.duration;
+				this.parameters.animation.timing.duration;
 
 			const easing = this.easeOutProgress(progress);
 
-			const { speed, angle } = this.velocity;
+			const { speed, angle } = this.releaseVelocity;
 
 			const easedSpeedByFrameDuration =
 				speed * easing * timeDifLastFrame;
@@ -200,8 +267,8 @@ class DragToScroll extends DragToBlank {
 				distanceX,
 				distanceY,
 			});
-			this.slideAnimation.timestamp = timestamp;
-			this.slideAnimation.rafID =
+			this.slideAnimationData.timestamp = timestamp;
+			this.slideAnimationData.rafID =
 				requestAnimationFrame(
 					this.animateSlide.bind(this),
 				);
@@ -213,7 +280,7 @@ class DragToScroll extends DragToBlank {
 	private easeOutProgress(progress: number) {
 		return Math.pow(
 			1 - progress,
-			this.animationOptions.easingFactor,
+			this.parameters.animation.timing.easingFactor,
 		);
 	}
 
@@ -222,9 +289,11 @@ class DragToScroll extends DragToBlank {
 			'wheel',
 			this.boundStopSlideAnimation,
 		);
-		if (this.slideAnimation !== undefined)
-			cancelAnimationFrame(this.slideAnimation.rafID);
-		this.slideAnimation = undefined;
+		if (this.slideAnimationData !== undefined)
+			cancelAnimationFrame(
+				this.slideAnimationData.rafID,
+			);
+		this.slideAnimationData = undefined;
 	}
 
 	private scroll({
@@ -234,8 +303,12 @@ class DragToScroll extends DragToBlank {
 		distanceX?: number;
 		distanceY?: number;
 	} = {}): void {
-		distanceX *= -1;
-		distanceY *= -1;
+		distanceX = this.parameters.direction.x
+			? distanceX * -1
+			: 0;
+		distanceY = this.parameters.direction.y
+			? distanceY * -1
+			: 0;
 		//limit distance so the result with currentScroll is within the scrollable area
 		const currentScroll = this.getCurrentScroll();
 		const maxScroll = this.getMaxScroll();
@@ -281,4 +354,4 @@ class DragToScroll extends DragToBlank {
 	}
 }
 
-(window as any).DragToBlank = DragToBlank;
+(window as any).DragToScroll = DragToScroll;

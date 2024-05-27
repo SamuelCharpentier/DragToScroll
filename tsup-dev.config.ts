@@ -1,13 +1,12 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-	entry: ['src/draggable.ts'],
+	entry: { dragToScroll: 'src/index.ts' },
 	platform: 'browser',
-	target: 'es5',
-	format: ['esm'],
-	dts: true,
 	splitting: false,
+	dts: true,
 	sourcemap: true,
+	format: ['iife'],
 	clean: true,
 	minify: false,
 	treeshake: false,
