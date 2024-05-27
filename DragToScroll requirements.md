@@ -42,3 +42,12 @@
 -   🟥 Bounce animate like an elastic, finishing at the scroll end;
 -   🟥 Bounce doesn't affect performance in a significant way
     -   🟥 There isn't any noticeable lag or freeze frames
+
+### Overscroll when reaching scroll extremeties while dragging (like on mobile)
+
+-   🟥 Overscroll is affected by the active drag
+-   🟥 Overscroll is smooth
+    -   🟥 There isn't any gittering
+-   🟥 Overscroll exponentially diminish the scroll behaviour, imitating resistance like an elastic;
+-   🟥 Overscroll doesn't affect performance in a significant way
+    -   🟥 There isn't any noticeable lag or freeze frames
