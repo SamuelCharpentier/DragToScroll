@@ -23,7 +23,27 @@ describe('DragToScroll', () => {
 		mouseDownEvent = new MouseEvent('mousedown');
 	});
 
-	it('should exist', () => {
-		expect(DragToScroll).toBeDefined();
+	describe('apply', () => {
+		it('should apply the DragToScroll class to all elements with the class name', () => {
+			const defaultClassElement =
+				createScrollableElement();
+			defaultClassElement.classList.add(
+				'drag-to-scroll',
+			);
+			document.body.appendChild(defaultClassElement);
+
+			const customClassElement =
+				createScrollableElement();
+			customClassElement.classList.add(
+				'custom-drag-to-scroll',
+			);
+			document.body.appendChild(customClassElement);
+
+			const controlElement =
+				createScrollableElement();
+			document.body.appendChild(controlElement);
+
+			DragToScroll.apply();
+		});
 	});
 });
