@@ -30,6 +30,8 @@ describe('DragToScroll', () => {
 			const delta = { x: -100, y: -100 };
 
 			await dragElement(element, instance, {
+				duration: 10,
+				steps: 2,
 				delta,
 			});
 
@@ -72,6 +74,7 @@ describe('DragToScroll', () => {
 			await dragElement(element, instance, {
 				delta,
 				steps: 2,
+				duration: 10,
 			});
 
 			expect(element.scrollLeft).toBe(
@@ -86,6 +89,7 @@ describe('DragToScroll', () => {
 			await dragElement(element, instance, {
 				delta,
 				steps: 2,
+				duration: 10,
 			});
 
 			expect(element.scrollTop).toBe(
