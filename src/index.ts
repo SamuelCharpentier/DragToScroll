@@ -43,6 +43,130 @@ export interface DragToScrollConfigurations {
 	stopPropagation?: boolean;
 }
 
+const validateConfigurations = (
+	configurations: any,
+): configurations is DragToScrollConfigurations => {
+	if (configurations.direction !== undefined) {
+		if (typeof configurations.direction !== 'object') {
+			throw new Error(
+				`In your configurations, 'direction' must be an (object) with any of the following properties: x (boolean), y (boolean)`,
+			);
+		}
+		for (const direction of ['x', 'y']) {
+			if (
+				configurations.direction[direction] !==
+					undefined &&
+				typeof configurations.direction[
+					direction
+				] !== 'boolean'
+			) {
+				throw new Error(
+					`In your configurations, 'direction.${direction}' must be a (boolean) when defined, received ${
+						configurations.direction[direction]
+					}[${typeof configurations.direction[
+						direction
+					]}]`,
+				);
+			}
+		}
+	}
+	if (configurations.animation !== undefined) {
+		if (typeof configurations.animation !== 'object') {
+			throw new Error(
+				`In your configurations, 'animation' must be an (object) with any of the following properties: 'timing' (object), 'slide' (boolean)`,
+			);
+		}
+		if (configurations.animation.timing !== undefined) {
+			if (
+				typeof configurations.animation.timing !==
+				'object'
+			) {
+				throw new Error(
+					`In your configurations, 'animation.timing' must be an (object) with any of the following properties: 'duration' (number), 'easingFactor' (number), 'maxSpeed' (number)`,
+				);
+			}
+			const timingProperties = [
+				{ name: 'duration', minVal: 0 },
+				{ name: 'easingFactor', minVal: 1 },
+				{ name: 'maxSpeed', minVal: 0 },
+			];
+			for (const propertyCase of timingProperties) {
+				const property = propertyCase.name;
+				if (
+					configurations.animation.timing[
+						property
+					] !== undefined
+				) {
+					if (
+						typeof configurations.animation
+							.timing[property] !== 'number'
+					) {
+						throw new Error(
+							`In your configurations, 'animation.timing.${property}' must be a (number) when defined, received ${
+								configurations.animation
+									.timing[property]
+							}[${typeof configurations
+								.animation.timing[
+								property
+							]}]`,
+						);
+					}
+					if (
+						configurations.animation.timing[
+							property
+						] < propertyCase.minVal
+					) {
+						throw new Error(
+							`In your configurations, 'animation.timing.${property}' can't be less than ${
+								propertyCase.minVal
+							} when defined, received ${
+								configurations.animation
+									.timing[property]
+							}[${typeof configurations
+								.animation.timing[
+								property
+							]}]`,
+						);
+					}
+				}
+			}
+		}
+		if (
+			configurations.animation.slide !== undefined &&
+			typeof configurations.animation.slide !==
+				'boolean'
+		) {
+			throw new Error(
+				`In your configurations, 'animation.slide' must be a (boolean) when defined, received ${
+					configurations.animation.slide
+				}[${typeof configurations.animation
+					.slide}]`,
+			);
+		}
+	}
+	if (
+		configurations.preventDefault !== undefined &&
+		typeof configurations.preventDefault !== 'boolean'
+	) {
+		throw new Error(
+			`In your configurations, 'preventDefault' must be a (boolean) when defined, received ${
+				configurations.preventDefault
+			}[${typeof configurations.preventDefault}]`,
+		);
+	}
+	if (
+		configurations.stopPropagation !== undefined &&
+		typeof configurations.stopPropagation !== 'boolean'
+	) {
+		throw new Error(
+			`In your configurations, 'stopPropagation' must be a (boolean) when defined, received ${
+				configurations.stopPropagation
+			}[${typeof configurations.stopPropagation}]`,
+		);
+	}
+	return true;
+};
+
 /**
  * Represents a draggable element with scroll functionality.
  */
@@ -65,6 +189,7 @@ export class DragToScroll extends DragToBlank {
 		DOMelement: HTMLElement,
 		configurations: DragToScrollConfigurations = {},
 	) {
+		validateConfigurations(configurations);
 		super(DOMelement);
 
 		const defaultParameters = {
