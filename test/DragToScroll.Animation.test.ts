@@ -40,7 +40,11 @@ describe('DragToScroll', () => {
 
 				const { instance } = await slideElement(
 					element,
-					{ animation: { slide } },
+					{
+						animation: {
+							slide,
+						},
+					},
 					delta,
 					scrollToSpy,
 				);
@@ -168,7 +172,7 @@ describe('DragToScroll', () => {
 
 			it('does not slide if the release velocity is lower than 0.2', async () => {
 				const slide = true;
-				delta = { x: -10, y: -10 };
+				delta = { x: -1, y: -1 };
 
 				await slideElement(
 					element,

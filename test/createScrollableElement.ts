@@ -1,3 +1,4 @@
+// ignore file coverage
 export function createScrollableElement(
 	scroll: {
 		width: number;

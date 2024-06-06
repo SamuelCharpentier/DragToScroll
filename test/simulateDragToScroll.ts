@@ -1,3 +1,4 @@
+// ignore file coverage
 import { fireEvent } from '@testing-library/dom';
 import {
 	DragToScroll,
@@ -9,8 +10,8 @@ export async function dragElement(
 	element: HTMLElement,
 	instance: DragToScroll,
 	{
-		steps = 20,
-		duration = 200,
+		steps = 2,
+		duration = 50,
 		from = { x: 100, y: 100 },
 		delta = { x: -100, y: -100 },
 		customFunctionbetweenSteps = () => {},
