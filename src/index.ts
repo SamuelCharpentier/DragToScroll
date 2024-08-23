@@ -26,17 +26,18 @@ function deepMergeConfigurations<T>(
 ): T {
 	const result = { ...defaultConfig };
 	for (const key in userConfig) {
-		if (userConfig[key] !== undefined) {
+		const value = userConfig[key];
+		if (value !== undefined) {
 			if (
-				typeof userConfig[key] === 'object' &&
-				userConfig[key] !== null
+				typeof value === 'object' &&
+				value !== null
 			) {
 				result[key] = deepMergeConfigurations(
 					result[key],
-					userConfig[key],
+					value,
 				);
 			} else {
-				result[key] = userConfig[key];
+				result[key] = value;
 			}
 		}
 	}
@@ -49,7 +50,7 @@ const defaultParameters: DragToScrollParameters = {
 		timing: {
 			duration: 1500,
 			easingFactor: 4,
-			maxSpeed: 10,
+			maxSpeed: 6,
 		},
 		slide: true,
 		//bounce: true, ///TODO implement bounce
