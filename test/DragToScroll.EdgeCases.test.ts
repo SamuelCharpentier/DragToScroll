@@ -53,7 +53,7 @@ describe('DragToScroll', () => {
 			expect(
 				globalErrorListener,
 			).toHaveBeenCalledWith(
-				'prev mouse move is undefined',
+				'Drag move data is incomplete',
 			);
 		});
 		it('throws if mouseData.get function is overridden to return undefined', async () => {
@@ -81,7 +81,7 @@ describe('DragToScroll', () => {
 			expect(
 				globalErrorListener,
 			).toHaveBeenCalledWith(
-				'present mouse move is undefined',
+				'Drag move data is incomplete',
 			);
 		});
 	});

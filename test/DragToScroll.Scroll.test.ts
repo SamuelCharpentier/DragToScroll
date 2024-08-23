@@ -25,7 +25,7 @@ describe('DragToScroll', () => {
 
 	describe('scroll', () => {
 		it('scroll with drag event', async () => {
-			new DragToScroll(element);
+			instance = new DragToScroll(element);
 
 			const delta = { x: -100, y: -100 };
 

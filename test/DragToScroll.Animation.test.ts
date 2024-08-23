@@ -28,10 +28,10 @@ describe('DragToScroll', () => {
 			let delta = { x: -100, y: -100 };
 			let stopSlideAnimationSpy: jest.SpyInstance;
 
-			it('should implement animateSlide', () => {
+			it('should implement handleAnimationFrame', () => {
 				expect(
 					(DragToScroll as any).prototype
-						.animateSlide,
+						.handleAnimationFrame,
 				).toBeDefined();
 			});
 

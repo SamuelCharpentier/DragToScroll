@@ -8,7 +8,7 @@ import { createScrollableElement } from './createScrollableElement';
 
 describe('DragToScroll', () => {
 	let element: HTMLElement;
-	let instance: DragToScroll;
+	let instance: DragToScroll<HTMLElement>;
 	let scrollToSpy: jest.SpyInstance;
 	let mouseDownEvent: MouseEvent;
 

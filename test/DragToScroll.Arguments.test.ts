@@ -1,10 +1,5 @@
-import { fireEvent } from '@testing-library/dom';
 import { DragToScroll } from '../src';
 import { createScrollableElement } from './createScrollableElement';
-import {
-	dragElement,
-	slideElement,
-} from './simulateDragToScroll';
 
 describe('DragToScroll', () => {
 	let element: HTMLElement;
@@ -89,7 +84,7 @@ describe('DragToScroll', () => {
 						direction: true as any,
 					});
 				}).toThrow(
-					`In your configurations, 'direction' must be an (object) with any of the following properties: x (boolean), y (boolean)`,
+					`'direction' must be an (object) with any of the following properties: 'x' (boolean), 'y' (boolean), received true[boolean]`,
 				);
 			});
 			it('if the direction x configuration is not a boolean', () => {
@@ -100,7 +95,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'direction.x' must be a (boolean) when defined, received true[string]`,
+					`'direction.x' must be a (boolean) when defined, received "true"[string]`,
 				);
 			});
 			it('if the direction y configuration is not a boolean', () => {
@@ -111,7 +106,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'direction.y' must be a (boolean) when defined, received 23[number]`,
+					`'direction.y' must be a (boolean) when defined, received 23[number]`,
 				);
 			});
 			it('if the animation configuration is not an object', () => {
@@ -120,7 +115,7 @@ describe('DragToScroll', () => {
 						animation: true as any,
 					});
 				}).toThrow(
-					`In your configurations, 'animation' must be an (object) with any of the following properties: 'timing' (object), 'slide' (boolean)`,
+					`'animation' must be an (object) with any of the following properties: 'timing' (object), 'slide' (boolean), received true[boolean]`,
 				);
 			});
 			it('if the animation timing configuration is not an object', () => {
@@ -131,7 +126,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing' must be an (object) with any of the following properties: 'duration' (number), 'easingFactor' (number), 'maxSpeed' (number)`,
+					`animation.timing' must be an (object) with any of the following properties: 'duration' (number), 'easingFactor' (number), 'maxSpeed' (number), received true[boolean]`,
 				);
 			});
 			it('if the animation timing duration configuration is not a number', () => {
@@ -144,7 +139,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.duration' must be a (number) when defined, received 2000[string]`,
+					`'animation.timing.duration' must be a (number), received \"2000\"[string]`,
 				);
 			});
 			it('if the animation timing easingFactor configuration is not a number', () => {
@@ -157,7 +152,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.easingFactor' must be a (number) when defined, received 5[string]`,
+					`'animation.timing.easingFactor' must be a (number), received \"5\"[string]`,
 				);
 			});
 			it('if the animation timing maxSpeed configuration is not a number', () => {
@@ -170,7 +165,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.maxSpeed' must be a (number) when defined, received 15[string]`,
+					`'animation.timing.maxSpeed' must be a (number), received \"15\"[string]`,
 				);
 			});
 			it('if the animation timing duration configuration is less than 0', () => {
@@ -183,7 +178,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.duration' can't be less than 0 when defined, received -2000[number]`,
+					`'animation.timing.duration' can't be less than 0 , received -2000[number]`,
 				);
 			});
 			it('if the animation timing easingFactor configuration is less than 1', () => {
@@ -196,7 +191,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.easingFactor' can't be less than 1 when defined, received -5[number]`,
+					`'animation.timing.easingFactor' can't be less than 1 , received -5[number]`,
 				);
 				expect(() => {
 					new DragToScroll(element, {
@@ -207,7 +202,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.easingFactor' can't be less than 1 when defined, received 0.5[number]`,
+					`'animation.timing.easingFactor' can't be less than 1 , received 0.5[number]`,
 				);
 			});
 			it('if the animation timing maxSpeed configuration is less than 0', () => {
@@ -220,7 +215,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.timing.maxSpeed' can't be less than 0 when defined, received -15[number]`,
+					`'animation.timing.maxSpeed' can't be less than 0 , received -15[number]`,
 				);
 			});
 			it('if the animation slide configuration is not a boolean', () => {
@@ -231,7 +226,7 @@ describe('DragToScroll', () => {
 						},
 					});
 				}).toThrow(
-					`In your configurations, 'animation.slide' must be a (boolean) when defined, received false[string]`,
+					`'animation.slide' must be a (boolean), received \"false\"[string]`,
 				);
 			});
 			test.todo(
@@ -246,7 +241,7 @@ describe('DragToScroll', () => {
 						preventDefault: 'true' as any,
 					});
 				}).toThrow(
-					`In your configurations, 'preventDefault' must be a (boolean) when defined, received true[string]`,
+					`'preventDefault' must be a (boolean), received \"true\"[string]`,
 				);
 			});
 			it('if the stopPropagation configuration is not a boolean', () => {
@@ -255,8 +250,44 @@ describe('DragToScroll', () => {
 						stopPropagation: 'true' as any,
 					});
 				}).toThrow(
-					`In your configurations, 'stopPropagation' must be a (boolean) when defined, received true[string]`,
+					`'stopPropagation' must be a (boolean), received \"true\"[string]`,
 				);
+			});
+			it('when more than one error is found in the configuration', () => {
+				const expectedErrors = [
+					"'direction.y' must be a (boolean) when defined, received 23[number]",
+					'\'animation.timing.duration\' must be a (number), received "2000"[string]',
+					'\'preventDefault\' must be a (boolean), received "true"[string]',
+					'\'stopPropagation\' must be a (boolean), received "true"[string]',
+				];
+				let thrownError: Error;
+
+				expect(() => {
+					try {
+						new DragToScroll(element, {
+							direction: {
+								x: true,
+								y: 23 as any,
+							},
+							animation: {
+								timing: {
+									duration: '2000' as any,
+								},
+							},
+							preventDefault: 'true' as any,
+							stopPropagation: 'true' as any,
+						});
+					} catch (error) {
+						thrownError = error as Error;
+						throw error;
+					}
+				}).toThrow();
+
+				expectedErrors.forEach((expectedError) => {
+					expect(thrownError.message).toContain(
+						expectedError,
+					);
+				});
 			});
 		});
 	});
