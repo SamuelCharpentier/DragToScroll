@@ -1,4 +1,4 @@
-import { DeepPartial } from '../lib/deepPartialType';
+import { DeepPartial } from '@/lib/deepPartialType';
 
 export type Direction = {
 	x: boolean;
