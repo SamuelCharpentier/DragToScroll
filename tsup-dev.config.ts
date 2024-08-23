@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-	entry: { dragToBlank: 'src/index.ts' },
+	entry: { dragToScroll: 'src/index.ts' },
 	platform: 'browser',
 	splitting: false,
 	dts: true,
